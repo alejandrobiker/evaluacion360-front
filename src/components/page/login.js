@@ -1,16 +1,48 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { InputText } from 'primereact/inputtext';
+import { environment } from '../../enviroment';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const handleSubmit = (e) => {
+    const [errorMessage, setErrorMessage] = useState('');
+  
+    const navigate = useNavigate();
+    
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        const data = { email, password };
-        console.log(data);
+        try {
+            const response = await fetch(`${environment.api}/auth/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+            });
+      
+            const data = await response.json();
+      
+            if (response.ok) {
+                localStorage.setItem('authToken', data.token);
+                navigate('/home');
+            } else {
+              setErrorMessage(data.message || 'Error en el inicio de sesión');
+            }
+          } catch (error) {
+            setErrorMessage('Error de red, por favor intente nuevamente.');
+          }
+
+        const response = await fetch(`${environment.api}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        })
+        if (response.ok) {
+            navigate('/home');
+        } else {
+            alert('Error en el inicio de sesión');
+        }
     };
 
     return (
@@ -23,7 +55,7 @@ const LoginPage = () => {
                         background: 'linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)'
                     }}
                 >
-                    <div className="w-full primary-50 py-8 px-5 sm:px-8" style={{ borderRadius: '53px', background: 'var(--surface-50)' }}>
+                    <div className="w-full primary-50 py-8 px-5 sm:px-8" style={{ borderRadius: '53px', background: 'var(--surface-0)' }}>
                         <div className="text-center mb-5">
                             <div className="py-2"></div>
                         </div>
@@ -45,6 +77,7 @@ const LoginPage = () => {
                                 <Button label="Iniciar sesión" className="w-full p-3 text-xl"></Button>
                             </div>
                         </form>
+                        {errorMessage && <div className="error">{errorMessage}</div>}
                     </div>
                 </div>
             </div>
