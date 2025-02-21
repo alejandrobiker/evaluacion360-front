@@ -4,11 +4,11 @@ import { Button } from 'primereact/button';
 import { Password } from 'primereact/password';
 import { InputText } from 'primereact/inputtext';
 import { environment } from '../../enviroment';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
   
     const navigate = useNavigate();
     
@@ -27,21 +27,10 @@ const LoginPage = () => {
                 localStorage.setItem('authToken', data.token);
                 navigate('/home');
             } else {
-              setErrorMessage(data.message || 'Error en el inicio de sesión');
+                toast.error(data.message || 'Error en el inicio de sesión');
             }
-          } catch (error) {
-            setErrorMessage('Error de red, por favor intente nuevamente.');
-          }
-
-        const response = await fetch(`${environment.api}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        })
-        if (response.ok) {
-            navigate('/home');
-        } else {
-            alert('Error en el inicio de sesión');
+        } catch (error) {
+            toast.error('Error de red, por favor intente nuevamente.');
         }
     };
 
@@ -77,7 +66,6 @@ const LoginPage = () => {
                                 <Button label="Iniciar sesión" className="w-full p-3 text-xl"></Button>
                             </div>
                         </form>
-                        {errorMessage && <div className="error">{errorMessage}</div>}
                     </div>
                 </div>
             </div>
